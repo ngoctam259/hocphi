@@ -1,48 +1,101 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="vi">
+
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <title>Tra cứu dữ liệu học sinh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        input {
+            width: 300px;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 8px 15px;
+        }
+    </style>
 </head>
+
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="vi"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Tìm kiếm Google Sheets&lt;/title&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2&gt;Tìm kiếm dữ liệu từ Google Sheets&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;input type="text" id="searchInput" placeholder="Nhập từ khóa..."&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="searchData()"&gt;Tìm kiếm&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;ul id="results"&gt;&lt;/ul&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const API_URL = "https://script.google.com/macros/s/AKfycbwlrVtXS5m2iezDW2fwAHf5z8VmZM8TIW3qQryQkDkh_jyMJCaD12NX0si4TH3cyKh1/exec";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>async function searchData() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const query = document.getElementById("searchInput").value;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const response = await fetch(`${API_URL}?q=${query}`);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const data = await response.json();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const resultList = document.getElementById("results");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>resultList.innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>data.forEach(row =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const li = document.createElement("li");</p>
-<p class="p1"><span class="Apple-converted-space">                </span>li.textContent = row.join(" | ");</p>
-<p class="p1"><span class="Apple-converted-space">                </span>resultList.appendChild(li);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+    <h2>🔎 Tra cứu thông tin học sinh 🔍</h2>
+
+    <input type="text" id="searchInput" placeholder="Nhập thông tin cần tìm...">
+    <button onclick="searchData()">Tìm</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã Môn</th>
+                <th>Họ Tên</th>
+                <th>Ngày Đóng</th>
+                <th>Số Tiền</th>
+                <th>Trạng Thái</th>
+            </tr>
+        </thead>
+        <tbody id="results"></tbody>
+    </table>
+
+    <script>
+        let sheetData = [];
+
+        async function fetchData() {
+            const sheetUrl = "https://docs.google.com/spreadsheets/d/1sN5kaLSKsdAL50FRUWgS9dRlfW9Gfs7MLxDyqUzGeaU/gviz/tq?tqx=out:csv&sheet=TongHop";
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(sheetUrl)}`;
+
+            const response = await fetch(proxyUrl);
+            const result = await response.json();
+            const csv = result.contents;
+
+            const rows = csv.split("\n").slice(1);
+            data = rows.map(row => row.split(";"));
+
+            return data;
+        }
+
+        function searchData() {
+            const keyword = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = data.filter(row => row.some(cell => cell.toLowerCase().includes(keyword)));
+
+            const tbody = document.getElementById("results");
+            tbody.innerHTML = "";
+
+            filtered.forEach((row) => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.onload = fetchData;
+    </script>
 </body>
 </html>
