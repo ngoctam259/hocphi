@@ -3,50 +3,24 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Tra cứu dữ liệu học sinh</title>
+    <title>Tra cứu thông tin học sinh</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        input {
-            width: 300px;
-            padding: 8px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            padding: 8px 15px;
-        }
+        body {font-family: Arial, sans-serif;padding: 30px;}
+        table {width: 100%;border-collapse: collapse;margin-top: 20px;}
+        th, td {border: 1px solid #ddd;padding: 8px;text-align: center;}
+        th {background-color: #4CAF50;color: white;}
+        input {width: 300px;padding: 8px;margin-bottom: 15px;}
+        button {padding: 8px 15px;}
     </style>
 </head>
 
 <body>
-    <h2>🔎 Tra cứu thông tin học sinh 🔍</h2>
+    <h2>🔍 Tra cứu thông tin học sinh 🔍</h2>
 
     <input type="text" id="searchInput" placeholder="Nhập thông tin cần tìm...">
     <button onclick="searchData()">Tìm</button>
 
-    <table>
+    <table id="resultsTable" style="display: none;">
         <thead>
             <tr>
                 <th>STT</th>
@@ -72,30 +46,36 @@
             const csv = result.contents;
 
             const rows = csv.split("\n").slice(1);
-            data = rows.map(row => row.split(";"));
-
-            return data;
+            sheetData = rows.map(row => row.split(";"));
         }
 
         function searchData() {
-            const keyword = document.getElementById("searchInput").value.toLowerCase();
-            const filtered = data.filter(row => row.some(cell => cell.toLowerCase().includes(keyword)));
-
+            const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
             const tbody = document.getElementById("results");
             tbody.innerHTML = "";
 
-            filtered.forEach((row) => {
+            if (keyword === "") {
+                document.getElementById("resultsTable").style.display = "none";
+                return;
+            }
+
+            const filtered = sheetData.filter(row => row.some(cell => cell.toLowerCase().includes(keyword)));
+
+            filtered.forEach(row => {
                 const tr = document.createElement("tr");
-                row.forEach(cell => {
+                row.slice(0, 6).forEach(cell => {
                     const td = document.createElement("td");
-                    td.textContent = cell;
+                    td.textContent = cell.trim();
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
             });
+
+            document.getElementById("resultsTable").style.display = filtered.length > 0 ? "table" : "none";
         }
 
         window.onload = fetchData;
     </script>
 </body>
+
 </html>
